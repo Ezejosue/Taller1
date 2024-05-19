@@ -81,3 +81,40 @@ GO
 SELECT *
 FROM BITACORA;
 GO
+
+
+
+-- Consultas para la base de datos Northwind
+USE Northwind;
+GO
+
+-- Consulta que muestra la cantidad de productos que existen dentro de cada categoría
+SELECT Categories.CategoryName, COUNT(Products.ProductID) AS ProductCount
+FROM Categories
+    JOIN Products ON Categories.CategoryID = Products.CategoryID
+GROUP BY Categories.CategoryName;
+GO
+
+--Consulta que muestra el nombre completo del vendedor, 
+--la fecha de orden, el nombre del producto y la cantidad vendida
+SELECT
+    CONCAT(Employees.FirstName, ' ', Employees.LastName) AS SalesPerson,
+    Orders.OrderDate,
+    Products.ProductName,
+    [Order Details].Quantity
+FROM Orders
+    JOIN [Order Details] ON Orders.OrderID = [Order Details].OrderID
+    JOIN Products ON [Order Details].ProductID = Products.ProductID
+    JOIN Employees ON Orders.EmployeeID = Employees.EmployeeID;
+
+--Consulta que muestra el nombre y la primera inicial del apellido 
+--del vendedor junto con la suma total de todas sus ventas, de los vendedores que tengan 
+--un total de ventas mayor a 100,000
+SELECT
+    Employees.FirstName + ' ' + LEFT(Employees.LastName, 1) AS CompleteName,
+    SUM([Order Details].UnitPrice * [Order Details].Quantity) AS TotalSales
+FROM Orders
+    JOIN [Order Details] ON Orders.OrderID = [Order Details].OrderID
+    JOIN Employees ON Orders.EmployeeID = Employees.EmployeeID
+GROUP BY Employees.FirstName, Employees.LastName
+HAVING SUM([Order Details].UnitPrice * [Order Details].Quantity) > 100000;
