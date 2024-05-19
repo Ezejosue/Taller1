@@ -82,7 +82,30 @@ SELECT *
 FROM BITACORA;
 GO
 
+--Consulta de un procedemiento almacenado  que ingrese los valores en la tabla PRODUCTOS, y
+--deberá verificar que el código y nombre del producto no exista para poder insertarlo, en
+--caso de que el código o el nombre del producto ya exista enviar un mensaje que diga “ESTE
+--PRODUCTO YA HA SIDO INGRESADO”.
 
+CREATE PROC Insert_Product
+@idprod CHAR(7),
+@descripcion VARCHAR(25),
+@existencias INT,
+@precio DECIMAL (10,2),
+@preciov DECIMAL (10,2)
+AS
+BEGIN
+IF NOT EXISTS (SELECT * FROM PRODUCTO WHERE idprod = @idprod OR descripcion = @descripcion)
+    BEGIN
+        INSERT INTO PRODUCTO(idprod, descripcion, existencias, precio, preciov)
+        VALUES(@idprod, @descripcion, @existencias, @precio, @preciov)
+    END
+ELSE
+    BEGIN
+    RAISERROR ('ESTE PRODUCTO YA HA SIDO INGRESADO', -1, -1)
+    END
+END
+GO
 
 -- Consultas para la base de datos Northwind
 USE Northwind;
