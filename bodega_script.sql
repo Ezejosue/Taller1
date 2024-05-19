@@ -141,3 +141,48 @@ FROM Orders
     JOIN Employees ON Orders.EmployeeID = Employees.EmployeeID
 GROUP BY Employees.FirstName, Employees.LastName
 HAVING SUM([Order Details].UnitPrice * [Order Details].Quantity) > 100000;
+
+/*
+3. Triggers en la tabla Productos que se active al momento de realizar una
+inserción, eliminación o actualización de datos. Dicha actualización deberá guardarse en una
+tabla que se llame BITACORA, la cual contiene un id, la acción que se realizó, la fecha y el
+nombre del usuario que realizó la acción.
+*/
+--Disparador de INSERT
+ALTER TRIGGER [dbo].[trg_producto_bitacoraINSERT]
+ON [dbo].[PRODUCTO] 
+FOR INSERT
+AS
+BEGIN
+INSERT INTO BITACORA (accion, fecha, nombre_producto, nombre_usuario)
+select 'Insertar' , GETDATE(),descripcion,SUSER_NAME() FROM inserted
+end;
+
+
+--Disparador de DELETE
+ALTER TRIGGER [dbo].[trg_producto_bitacoraDELETE]
+ON [dbo].[PRODUCTO] 
+FOR DELETE
+AS
+BEGIN
+INSERT INTO BITACORA (accion, fecha, nombre_producto, nombre_usuario)
+select 'Eliminar' , GETDATE(),descripcion,SUSER_NAME() FROM inserted
+end;
+
+
+--Disparador de UPDATE
+ALTER TRIGGER [dbo].[trg_producto_bitacoraUPDATE]
+ON [dbo].[PRODUCTO] 
+FOR UPDATE
+AS
+BEGIN
+INSERT INTO BITACORA (accion, fecha, nombre_producto, nombre_usuario)
+select 'Actualizar' , GETDATE(),descripcion,SUSER_NAME() FROM inserted
+end;
+
+
+
+
+
+
+
