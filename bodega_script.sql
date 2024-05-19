@@ -106,6 +106,17 @@ ELSE
     END
 END
 GO
+/*
+Crear un procedimiento almacenado que permita realizar un pedido EN LA TABLA PEDIDO, 
+este procedimiento deberá verificar si el código del producto ingresado existe en la tabla 
+PRODUCTO en caso de que no se encuentre deberá mostrar un mensaje, así como se 
+muestra a continuación “ESTE PRODUCTO NO EXISTE “, además si la cantidad a pedir del 
+producto es mayor a la existencia del producto deberá mostrar un mensaje que diga 
+“EXISTENCIA DEL PRODUCTO INSUFICIENTE”. En caso de que la cantidad a pedir sea menor 
+o igual deberá modificar (o actualizar) el valor de la existencia del producto. 
+*/
+
+CREATE PROCEDURE RealizarPedido    @idpedido CHAR(7),    @idprod CHAR(7),    @cantidad INTASBEGIN    -- Verificar existencia    IF NOT EXISTS (SELECT 1 FROM PRODUCTO WHERE idprod = @idprod)    BEGIN        PRINT 'ESTE PRODUCTO NO EXISTE';        RETURN;    END    -- Verificar si la cantidad a pedir es mayor que la existencia del producto    DECLARE @existencias INT;    SELECT @existencias = existencias FROM PRODUCTO WHERE idprod = @idprod;    IF @cantidad > @existencias    BEGIN        PRINT 'EXISTENCIA DEL PRODUCTO INSUFICIENTE';        RETURN;    END    -- Insertar el pedido en la tabla PEDIDO    INSERT INTO PEDIDO (idpedido, idprod, cantidad)    VALUES (@idpedido, @idprod, @cantidad);    -- Actualizar la existencia    UPDATE PRODUCTO    SET existencias = existencias - @cantidad    WHERE idprod = @idprod;    PRINT 'PEDIDO REALIZADO CON EXITO';END;GO
 
 -- Consultas para la base de datos Northwind
 USE Northwind;
@@ -141,6 +152,7 @@ FROM Orders
     JOIN Employees ON Orders.EmployeeID = Employees.EmployeeID
 GROUP BY Employees.FirstName, Employees.LastName
 HAVING SUM([Order Details].UnitPrice * [Order Details].Quantity) > 100000;
+
 
 /*
 3. Triggers en la tabla Productos que se active al momento de realizar una
