@@ -2,6 +2,13 @@
 
 ¡Bienvenido/a a este taller práctico de SQL! Aquí pondrás a prueba tus habilidades en el manejo de bases de datos relacionales, específicamente en la creación de procedimientos almacenados y disparadores (triggers).
 
+### Creadores
+
+*  Avalos Avalos, Josué Ezequiel: AA200509
+*  Señora Reyes, Jonathan Rafael: SR232918 
+*  Bryan Benjamín Henríquez Salmerón HS232171
+*  Beltrán López, Katherine Estefany BL233081
+
 ### Descripción del Problema 📋
 
 Imagina que estás a cargo de la base de datos de una tienda. Necesitas gestionar la información de los productos (tabla `PRODUCTO`) y los pedidos que los clientes realizan (tabla `PEDIDO`). Tu misión es desarrollar soluciones SQL para:
