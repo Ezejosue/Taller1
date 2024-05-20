@@ -7,6 +7,8 @@ GO
 USE Bodega;
 GO
 
+DROP DATABASE Bodega;
+
 
 CREATE TABLE PRODUCTO
 (
@@ -87,7 +89,7 @@ GO
 --caso de que el código o el nombre del producto ya exista enviar un mensaje que diga “ESTE
 --PRODUCTO YA HA SIDO INGRESADO”.
 
-CREATE PROC Insert_Product
+CREATE PROCEDURE Insert_Product
     @idprod CHAR(7),
     @descripcion VARCHAR(25),
     @existencias INT,
@@ -208,7 +210,7 @@ tabla que se llame BITACORA, la cual contiene un id, la acción que se realizó,
 nombre del usuario que realizó la acción.
 */
 --Disparador de INSERT
-ALTER TRIGGER [dbo].[trg_producto_bitacoraINSERT]
+CREATE TRIGGER [dbo].[trg_producto_bitacoraINSERT]
 ON [dbo].[PRODUCTO] 
 FOR INSERT
 AS
@@ -221,7 +223,7 @@ END;
 GO
 
 --Disparador de DELETE
-ALTER TRIGGER [dbo].[trg_producto_bitacoraDELETE]
+CREATE TRIGGER [dbo].[trg_producto_bitacoraDELETE]
 ON [dbo].[PRODUCTO] 
 FOR DELETE
 AS
@@ -234,7 +236,7 @@ END;
 GO
 
 --Disparador de UPDATE
-ALTER TRIGGER [dbo].[trg_producto_bitacoraUPDATE]
+CREATE TRIGGER [dbo].[trg_producto_bitacoraUPDATE]
 ON [dbo].[PRODUCTO] 
 FOR UPDATE
 AS
