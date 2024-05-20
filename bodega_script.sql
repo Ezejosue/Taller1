@@ -88,24 +88,29 @@ GO
 --PRODUCTO YA HA SIDO INGRESADO”.
 
 CREATE PROC Insert_Product
-@idprod CHAR(7),
-@descripcion VARCHAR(25),
-@existencias INT,
-@precio DECIMAL (10,2),
-@preciov DECIMAL (10,2)
+    @idprod CHAR(7),
+    @descripcion VARCHAR(25),
+    @existencias INT,
+    @precio DECIMAL (10,2),
+    @preciov DECIMAL (10,2)
 AS
 BEGIN
-IF NOT EXISTS (SELECT * FROM PRODUCTO WHERE idprod = @idprod OR descripcion = @descripcion)
+    IF NOT EXISTS (SELECT *
+    FROM PRODUCTO
+    WHERE idprod = @idprod OR descripcion = @descripcion)
     BEGIN
-        INSERT INTO PRODUCTO(idprod, descripcion, existencias, precio, preciov)
+        INSERT INTO PRODUCTO
+            (idprod, descripcion, existencias, precio, preciov)
         VALUES(@idprod, @descripcion, @existencias, @precio, @preciov)
     END
 ELSE
     BEGIN
-    RAISERROR ('ESTE PRODUCTO YA HA SIDO INGRESADO', -1, -1)
+        RAISERROR ('ESTE PRODUCTO YA HA SIDO INGRESADO', -1, -1)
     END
 END
 GO
+
+
 /*
 Crear un procedimiento almacenado que permita realizar un pedido EN LA TABLA PEDIDO, 
 este procedimiento deberá verificar si el código del producto ingresado existe en la tabla 
@@ -116,7 +121,48 @@ producto es mayor a la existencia del producto deberá mostrar un mensaje que di
 o igual deberá modificar (o actualizar) el valor de la existencia del producto. 
 */
 
-CREATE PROCEDURE RealizarPedido    @idpedido CHAR(7),    @idprod CHAR(7),    @cantidad INTASBEGIN    -- Verificar existencia    IF NOT EXISTS (SELECT 1 FROM PRODUCTO WHERE idprod = @idprod)    BEGIN        PRINT 'ESTE PRODUCTO NO EXISTE';        RETURN;    END    -- Verificar si la cantidad a pedir es mayor que la existencia del producto    DECLARE @existencias INT;    SELECT @existencias = existencias FROM PRODUCTO WHERE idprod = @idprod;    IF @cantidad > @existencias    BEGIN        PRINT 'EXISTENCIA DEL PRODUCTO INSUFICIENTE';        RETURN;    END    -- Insertar el pedido en la tabla PEDIDO    INSERT INTO PEDIDO (idpedido, idprod, cantidad)    VALUES (@idpedido, @idprod, @cantidad);    -- Actualizar la existencia    UPDATE PRODUCTO    SET existencias = existencias - @cantidad    WHERE idprod = @idprod;    PRINT 'PEDIDO REALIZADO CON EXITO';END;GO
+CREATE PROCEDURE RealizarPedido
+    @idpedido CHAR(7),
+    @idprod CHAR(7),
+    @cantidad INT
+AS
+BEGIN
+    -- Verificar existencia
+    IF NOT EXISTS (SELECT 1
+    FROM PRODUCTO
+    WHERE idprod = @idprod)
+    BEGIN
+        PRINT 'ESTE PRODUCTO NO EXISTE';
+        RETURN;
+    END
+
+    -- Verificar si la cantidad a pedir es mayor que la existencia del producto
+    DECLARE @existencias INT;
+    SELECT @existencias = existencias
+    FROM PRODUCTO
+    WHERE idprod = @idprod;
+
+    IF @cantidad > @existencias
+    BEGIN
+        PRINT 'EXISTENCIA DEL PRODUCTO INSUFICIENTE';
+        RETURN;
+    END
+
+    -- Insertar el pedido en la tabla PEDIDO
+    INSERT INTO PEDIDO
+        (idpedido, idprod, cantidad)
+    VALUES
+        (@idpedido, @idprod, @cantidad);
+
+    -- Actualizar la existencia
+    UPDATE PRODUCTO
+    SET existencias = existencias - @cantidad
+    WHERE idprod = @idprod;
+
+    PRINT 'PEDIDO REALIZADO CON EXITO';
+END;
+GO
+
 
 -- Consultas para la base de datos Northwind
 USE Northwind;
@@ -140,6 +186,7 @@ FROM Orders
     JOIN [Order Details] ON Orders.OrderID = [Order Details].OrderID
     JOIN Products ON [Order Details].ProductID = Products.ProductID
     JOIN Employees ON Orders.EmployeeID = Employees.EmployeeID;
+GO
 
 --Consulta que muestra el nombre y la primera inicial del apellido 
 --del vendedor junto con la suma total de todas sus ventas, de los vendedores que tengan 
@@ -152,7 +199,7 @@ FROM Orders
     JOIN Employees ON Orders.EmployeeID = Employees.EmployeeID
 GROUP BY Employees.FirstName, Employees.LastName
 HAVING SUM([Order Details].UnitPrice * [Order Details].Quantity) > 100000;
-
+GO
 
 /*
 3. Triggers en la tabla Productos que se active al momento de realizar una
@@ -166,10 +213,12 @@ ON [dbo].[PRODUCTO]
 FOR INSERT
 AS
 BEGIN
-INSERT INTO BITACORA (accion, fecha, nombre_producto, nombre_usuario)
-select 'Insertar' , GETDATE(),descripcion,SUSER_NAME() FROM inserted
-end;
-
+    INSERT INTO BITACORA
+        (accion, fecha, nombre_producto, nombre_usuario)
+    SELECT 'Insertar', GETDATE(), descripcion, SUSER_NAME()
+    FROM inserted
+END;
+GO
 
 --Disparador de DELETE
 ALTER TRIGGER [dbo].[trg_producto_bitacoraDELETE]
@@ -177,10 +226,12 @@ ON [dbo].[PRODUCTO]
 FOR DELETE
 AS
 BEGIN
-INSERT INTO BITACORA (accion, fecha, nombre_producto, nombre_usuario)
-select 'Eliminar' , GETDATE(),descripcion,SUSER_NAME() FROM inserted
-end;
-
+    INSERT INTO BITACORA
+        (accion, fecha, nombre_producto, nombre_usuario)
+    SELECT 'Eliminar', GETDATE(), descripcion, SUSER_NAME()
+    FROM deleted
+END;
+GO
 
 --Disparador de UPDATE
 ALTER TRIGGER [dbo].[trg_producto_bitacoraUPDATE]
@@ -188,11 +239,12 @@ ON [dbo].[PRODUCTO]
 FOR UPDATE
 AS
 BEGIN
-INSERT INTO BITACORA (accion, fecha, nombre_producto, nombre_usuario)
-select 'Actualizar' , GETDATE(),descripcion,SUSER_NAME() FROM inserted
-end;
-
-
+    INSERT INTO BITACORA
+        (accion, fecha, nombre_producto, nombre_usuario)
+    SELECT 'Actualizar', GETDATE(), descripcion, SUSER_NAME()
+    FROM inserted
+END;
+GO
 
 
 
